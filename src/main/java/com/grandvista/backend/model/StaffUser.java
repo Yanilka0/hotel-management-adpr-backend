@@ -1,45 +1,34 @@
 package com.grandvista.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-@Entity
-@Table(name = "staff_user")
+@Document(collection = "staff_users")
 public class StaffUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID staffId;
+    private String staffId;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String fullName;
 
-    @Column(nullable = false)
     private String passwordHash;
 
     private String profileImageUrl;
 
-    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private String role; // e.g., ADMIN, STAFF
 
     // Getters and Setters
 
-    public UUID getStaffId() {
+    public String getStaffId() {
         return staffId;
     }
 
-    public void setStaffId(UUID staffId) {
+    public void setStaffId(String staffId) {
         this.staffId = staffId;
     }
 
