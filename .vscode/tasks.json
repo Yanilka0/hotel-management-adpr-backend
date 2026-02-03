@@ -2,22 +2,23 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "maven: clean install",
+            "label": "maven: build (shaded jar)",
             "type": "shell",
-            "command": "mvn clean install",
+            "command": "mvn clean package",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
         },
         {
-            "label": "maven: run",
+            "label": "java: run jar",
             "type": "shell",
-            "command": "mvn spring-boot:run",
+            "command": "java -jar target/grand-vista-backend-0.0.1-SNAPSHOT.jar",
             "group": {
                 "kind": "test",
                 "isDefault": false
-            }
+            },
+            "dependsOn": "maven: build (shaded jar)"
         }
     ]
 }

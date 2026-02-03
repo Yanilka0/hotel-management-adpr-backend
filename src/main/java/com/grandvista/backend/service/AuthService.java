@@ -2,24 +2,20 @@ package com.grandvista.backend.service;
 
 import com.grandvista.backend.model.StaffUser;
 import com.grandvista.backend.repository.StaffUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.grandvista.backend.util.PasswordUtil;
 
 import java.util.Optional;
 import java.util.Random;
 
-@Service
 public class AuthService {
 
-    @Autowired
-    private StaffUserRepository staffUserRepository;
+    private final StaffUserRepository staffUserRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private EmailService emailService;
+    public AuthService(StaffUserRepository staffUserRepository, EmailService emailService) {
+        this.staffUserRepository = staffUserRepository;
+        this.emailService = emailService;
+    }
 
     public StaffUser createStaffUser(String email, String fullName, String role) {
         if (staffUserRepository.findByEmail(email).isPresent()) {
@@ -31,7 +27,7 @@ public class AuthService {
         user.setEmail(email);
         user.setFullName(fullName);
         user.setRole(role);
-        user.setPasswordHash(passwordEncoder.encode(randomPassword));
+        user.setPasswordHash(PasswordUtil.hashPassword(randomPassword));
 
         StaffUser savedUser = staffUserRepository.save(user);
 
@@ -45,7 +41,7 @@ public class AuthService {
         Optional<StaffUser> userOpt = staffUserRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             StaffUser user = userOpt.get();
-            if (passwordEncoder.matches(password, user.getPasswordHash())) {
+            if (PasswordUtil.checkPassword(password, user.getPasswordHash())) {
                 return user;
             }
         }
@@ -57,7 +53,7 @@ public class AuthService {
         if (userOpt.isPresent()) {
             StaffUser user = userOpt.get();
             String newPassword = generateRandomPassword();
-            user.setPasswordHash(passwordEncoder.encode(newPassword));
+            user.setPasswordHash(PasswordUtil.hashPassword(newPassword));
             staffUserRepository.save(user);
 
             emailService.sendEmail(email, "Password Reset",

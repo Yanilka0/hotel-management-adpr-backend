@@ -3,10 +3,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-GrandVistaApplication<grand-vista-backend>",
+            "name": "Run Grand Vista Backend",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "com.grandvista.backend.GrandVistaApplication",
+            "mainClass": "com.grandvista.backend.HttpServerMain",
             "projectName": "grand-vista-backend",
             "args": "",
             "envFile": "${workspaceFolder}/.env"

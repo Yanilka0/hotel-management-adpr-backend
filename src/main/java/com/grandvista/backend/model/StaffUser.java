@@ -1,13 +1,9 @@
 package com.grandvista.backend.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
-@Document(collection = "staff_users")
 public class StaffUser {
 
-    @Id
     private String staffId;
 
     private String email;
