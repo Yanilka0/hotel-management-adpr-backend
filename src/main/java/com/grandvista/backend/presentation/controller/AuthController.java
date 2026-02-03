@@ -1,32 +1,32 @@
-package com.grandvista.backend.handler;
+package com.grandvista.backend.presentation.controller;
 
-import com.grandvista.backend.model.StaffUser;
-import com.grandvista.backend.service.AuthService;
+import com.grandvista.backend.presentation.dto.LoginRequest;
+import com.grandvista.backend.presentation.dto.RegisterRequest;
+import com.grandvista.backend.presentation.dto.ResetPasswordRequest;
+import com.grandvista.backend.data.model.StaffUser;
+import com.grandvista.backend.business.service.AuthService;
 import com.grandvista.backend.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
-public class AuthHandler implements HttpHandler {
+public class AuthController implements HttpHandler {
 
     private final AuthService authService;
 
-    public AuthHandler(AuthService authService) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // Add CORS headers
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
 
         if ("OPTIONS".equals(exchange.getRequestMethod())) {
             exchange.sendResponseHeaders(200, -1);
@@ -57,60 +57,58 @@ public class AuthHandler implements HttpHandler {
     }
 
     private void handleRegister(HttpExchange exchange) throws IOException {
-        Map<String, String> params = parseQueryParams(exchange.getRequestURI().getQuery());
+        String body = readRequestBody(exchange.getRequestBody());
+        RegisterRequest request = JsonUtil.fromJson(body, RegisterRequest.class);
 
-        String email = params.get("email");
-        String fullName = params.get("fullName");
-        String role = params.get("role");
+        if (request == null || request.getEmail() == null || request.getFullName() == null
+                || request.getRole() == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing required fields\"}");
+            return;
+        }
 
-        StaffUser user = authService.createStaffUser(email, fullName, role);
+        StaffUser user = authService.createStaffUser(request.getEmail(), request.getFullName(), request.getRole());
         String response = JsonUtil.toJson(user);
         sendResponse(exchange, 200, response);
     }
 
     private void handleLogin(HttpExchange exchange) throws IOException {
-        Map<String, String> params = parseQueryParams(exchange.getRequestURI().getQuery());
+        String body = readRequestBody(exchange.getRequestBody());
+        LoginRequest request = JsonUtil.fromJson(body, LoginRequest.class);
 
-        String email = params.get("email");
-        String password = params.get("password");
+        if (request == null || request.getEmail() == null || request.getPassword() == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing required fields\"}");
+            return;
+        }
 
-        StaffUser user = authService.login(email, password);
+        StaffUser user = authService.login(request.getEmail(), request.getPassword());
         String response = JsonUtil.toJson(user);
         sendResponse(exchange, 200, response);
     }
 
     private void handleResetPassword(HttpExchange exchange) throws IOException {
-        Map<String, String> params = parseQueryParams(exchange.getRequestURI().getQuery());
+        String body = readRequestBody(exchange.getRequestBody());
+        ResetPasswordRequest request = JsonUtil.fromJson(body, ResetPasswordRequest.class);
 
-        String email = params.get("email");
+        if (request == null || request.getEmail() == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing required fields\"}");
+            return;
+        }
 
-        authService.resetPassword(email);
+        authService.resetPassword(request.getEmail());
         String response = "{\"message\": \"Password reset email sent.\"}";
         sendResponse(exchange, 200, response);
     }
 
-    private Map<String, String> parseQueryParams(String query) {
-        Map<String, String> params = new HashMap<>();
-        if (query != null && !query.isEmpty()) {
-            String[] pairs = query.split("&");
-            for (String pair : pairs) {
-                String[] keyValue = pair.split("=");
-                if (keyValue.length == 2) {
-                    String key = URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
-                    String value = URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
-                    params.put(key, value);
-                }
-            }
-        }
-        return params;
+    private String readRequestBody(InputStream is) throws IOException {
+        return new String(is.readAllBytes(), StandardCharsets.UTF_8);
     }
 
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, response.getBytes().length);
 
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getBytes());
+        }
     }
 }

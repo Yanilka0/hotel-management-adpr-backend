@@ -1,4 +1,4 @@
-package com.grandvista.backend.model;
+package com.grandvista.backend.data.model;
 
 import java.time.LocalDateTime;
 

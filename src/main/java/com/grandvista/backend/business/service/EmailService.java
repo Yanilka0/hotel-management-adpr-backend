@@ -1,4 +1,4 @@
-package com.grandvista.backend.service;
+package com.grandvista.backend.business.service;
 
 import com.grandvista.backend.config.ConfigLoader;
 

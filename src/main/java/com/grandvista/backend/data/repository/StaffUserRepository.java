@@ -1,7 +1,7 @@
-package com.grandvista.backend.repository;
+package com.grandvista.backend.data.repository;
 
-import com.grandvista.backend.database.MongoDBConnection;
-import com.grandvista.backend.model.StaffUser;
+import com.grandvista.backend.data.database.MongoDBConnection;
+import com.grandvista.backend.data.model.StaffUser;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
@@ -50,18 +50,18 @@ public class StaffUserRepository {
 
     public Optional<StaffUser> findByEmail(String email) {
         Document doc = collection.find(Filters.eq("email", email)).first();
-        if (doc == null) {
-            return Optional.empty();
+        if (doc != null) {
+            return Optional.of(documentToStaffUser(doc));
         }
-        return Optional.of(documentToStaffUser(doc));
+        return Optional.empty();
     }
 
     public Optional<StaffUser> findById(String id) {
         Document doc = collection.find(Filters.eq("_id", new ObjectId(id))).first();
-        if (doc == null) {
-            return Optional.empty();
+        if (doc != null) {
+            return Optional.of(documentToStaffUser(doc));
         }
-        return Optional.of(documentToStaffUser(doc));
+        return Optional.empty();
     }
 
     private StaffUser documentToStaffUser(Document doc) {
@@ -71,13 +71,13 @@ public class StaffUserRepository {
         user.setFullName(doc.getString("fullName"));
         user.setPasswordHash(doc.getString("passwordHash"));
         user.setProfileImageUrl(doc.getString("profileImageUrl"));
+        user.setRole(doc.getString("role"));
 
         String createdAtStr = doc.getString("createdAt");
         if (createdAtStr != null) {
             user.setCreatedAt(LocalDateTime.parse(createdAtStr));
         }
 
-        user.setRole(doc.getString("role"));
         return user;
     }
 }

@@ -1,4 +1,4 @@
-package com.grandvista.backend.database;
+package com.grandvista.backend.data.database;
 
 import com.grandvista.backend.config.ConfigLoader;
 import com.mongodb.client.MongoClient;

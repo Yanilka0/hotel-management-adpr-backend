@@ -1,7 +1,7 @@
-package com.grandvista.backend.service;
+package com.grandvista.backend.business.service;
 
-import com.grandvista.backend.model.StaffUser;
-import com.grandvista.backend.repository.StaffUserRepository;
+import com.grandvista.backend.data.model.StaffUser;
+import com.grandvista.backend.data.repository.StaffUserRepository;
 import com.grandvista.backend.util.PasswordUtil;
 
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class AuthService {
         StaffUser savedUser = staffUserRepository.save(user);
 
         emailService.sendEmail(email, "Welcome to Grand Vista",
-                "Your account has been created.\nUsername: " + email + "\nPassword: " + randomPassword);
+                "Your account has been created.\\nUsername: " + email + "\\nPassword: " + randomPassword);
 
         return savedUser;
     }
@@ -57,11 +57,8 @@ public class AuthService {
             staffUserRepository.save(user);
 
             emailService.sendEmail(email, "Password Reset",
-                    "Your password has been reset.\nNew Password: " + newPassword);
+                    "Your password has been reset.\\nNew Password: " + newPassword);
         } else {
-            // For security, don't reveal if user exists, or throw a generic error.
-            // Here we might just log or do nothing if we want to be stealthy.
-            // But for now let's throw to be explicit for the UI.
             throw new RuntimeException("User not found");
         }
     }

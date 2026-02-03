@@ -1,4 +1,4 @@
-package com.grandvista.backend.handler;
+package com.grandvista.backend.presentation.controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class SwaggerUIHandler implements HttpHandler {
+public class SwaggerUIController implements HttpHandler {
 
     private static final String SWAGGER_HTML = "<!DOCTYPE html>\n" +
             "<html lang=\"en\">\n" +
@@ -40,7 +40,6 @@ public class SwaggerUIHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // Add CORS headers
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
         if ("GET".equals(exchange.getRequestMethod())) {
