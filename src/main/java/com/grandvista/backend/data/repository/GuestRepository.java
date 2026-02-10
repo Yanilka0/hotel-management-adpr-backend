@@ -44,6 +44,14 @@ public class GuestRepository {
         return Optional.empty();
     }
 
+    public Optional<Guest> findById(String id) {
+        Document doc = collection.find(Filters.eq("_id", new ObjectId(id))).first();
+        if (doc != null) {
+            return Optional.of(documentToGuest(doc));
+        }
+        return Optional.empty();
+    }
+
     private Guest documentToGuest(Document doc) {
         Guest guest = new Guest();
         guest.setId(doc.getObjectId("_id").toString());

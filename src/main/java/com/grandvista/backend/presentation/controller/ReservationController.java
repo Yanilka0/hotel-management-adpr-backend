@@ -31,10 +31,25 @@ public class ReservationController implements HttpHandler {
             return;
         }
 
-        if ("POST".equals(exchange.getRequestMethod())) {
+        String method = exchange.getRequestMethod();
+        if ("POST".equals(method)) {
             handleCreateReservation(exchange);
+        } else if ("GET".equals(method)) {
+            handleGetAllReservations(exchange);
         } else {
             sendResponse(exchange, 405, "{\"error\": \"Method not allowed\"}");
+        }
+    }
+
+    private void handleGetAllReservations(HttpExchange exchange) throws IOException {
+        try {
+            java.util.List<com.grandvista.backend.presentation.dto.ReservationDetailsResponse> reservations = reservationService
+                    .getAllReservationsWithDetails();
+            String response = JsonUtil.toJson(reservations);
+            sendResponse(exchange, 200, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 

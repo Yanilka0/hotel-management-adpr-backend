@@ -52,4 +52,28 @@ public class ReservationService {
 
         return reservationRepository.save(reservation);
     }
+
+    public java.util.List<com.grandvista.backend.presentation.dto.ReservationDetailsResponse> getAllReservationsWithDetails() {
+        java.util.List<Reservation> reservations = reservationRepository.getAll();
+        java.util.List<com.grandvista.backend.presentation.dto.ReservationDetailsResponse> detailsList = new java.util.ArrayList<>();
+
+        for (Reservation res : reservations) {
+            com.grandvista.backend.presentation.dto.ReservationDetailsResponse details = new com.grandvista.backend.presentation.dto.ReservationDetailsResponse();
+            details.setId(res.getId());
+            details.setRoomType(res.getRoomType());
+            details.setStatus(res.getStatus());
+            details.setStayDuration(res.getCheckInDate().toString() + " to " + res.getCheckOutDate().toString());
+
+            Optional<Guest> guest = guestRepository.findById(res.getGuestId());
+            if (guest.isPresent()) {
+                details.setClientName(guest.get().getFullName());
+                details.setClientContact(guest.get().getContactNumber());
+            } else {
+                details.setClientName("Unknown Client");
+                details.setClientContact("N/A");
+            }
+            detailsList.add(details);
+        }
+        return detailsList;
+    }
 }

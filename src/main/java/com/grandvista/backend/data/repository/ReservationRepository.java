@@ -31,4 +31,41 @@ public class ReservationRepository {
 
         return reservation;
     }
+
+    public java.util.List<Reservation> getAll() {
+        java.util.List<Reservation> reservations = new java.util.ArrayList<>();
+        for (Document doc : collection.find()) {
+            reservations.add(documentToReservation(doc));
+        }
+        return reservations;
+    }
+
+    private Reservation documentToReservation(Document doc) {
+        Reservation reservation = new Reservation();
+        reservation.setId(doc.getObjectId("_id").toString());
+        reservation.setGuestId(doc.getString("guestId"));
+        reservation.setRoomType(doc.getString("roomType"));
+        reservation.setNumberOfPeople(doc.getInteger("numberOfPeople"));
+
+        String checkInStr = doc.getString("checkInDate");
+        if (checkInStr != null) {
+            reservation.setCheckInDate(java.time.LocalDate.parse(checkInStr));
+        }
+
+        String checkOutStr = doc.getString("checkOutDate");
+        if (checkOutStr != null) {
+            reservation.setCheckOutDate(java.time.LocalDate.parse(checkOutStr));
+        }
+
+        reservation.setBedType(doc.getString("bedType"));
+        reservation.setBreakfastIncluded(doc.getBoolean("breakfastIncluded"));
+        reservation.setStatus(doc.getString("status"));
+
+        String createdAtStr = doc.getString("createdAt");
+        if (createdAtStr != null) {
+            reservation.setCreatedAt(java.time.LocalDateTime.parse(createdAtStr));
+        }
+
+        return reservation;
+    }
 }
