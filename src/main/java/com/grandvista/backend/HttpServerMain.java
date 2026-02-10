@@ -3,11 +3,15 @@ package com.grandvista.backend;
 import com.grandvista.backend.presentation.controller.ApiDocsController;
 import com.grandvista.backend.presentation.controller.AuthController;
 import com.grandvista.backend.presentation.controller.HealthController;
+import com.grandvista.backend.presentation.controller.ReservationController;
 import com.grandvista.backend.presentation.controller.SwaggerUIController;
 import com.grandvista.backend.data.database.MongoDBConnection;
 import com.grandvista.backend.data.repository.StaffUserRepository;
+import com.grandvista.backend.data.repository.GuestRepository;
+import com.grandvista.backend.data.repository.ReservationRepository;
 import com.grandvista.backend.business.service.AuthService;
 import com.grandvista.backend.business.service.EmailService;
+import com.grandvista.backend.business.service.ReservationService;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -22,8 +26,12 @@ public class HttpServerMain {
 
             // Initialize services
             StaffUserRepository staffUserRepository = new StaffUserRepository();
+            GuestRepository guestRepository = new GuestRepository();
+            ReservationRepository reservationRepository = new ReservationRepository();
+
             EmailService emailService = new EmailService();
             AuthService authService = new AuthService(staffUserRepository, emailService);
+            ReservationService reservationService = new ReservationService(guestRepository, reservationRepository);
 
             // Create HTTP server
             int port = 8081;
@@ -34,6 +42,7 @@ public class HttpServerMain {
             server.createContext("/api/auth/register", new AuthController(authService));
             server.createContext("/api/auth/login", new AuthController(authService));
             server.createContext("/api/auth/reset-password", new AuthController(authService));
+            server.createContext("/api/bookings", new ReservationController(reservationService));
 
             // Register Swagger UI handlers
             server.createContext("/api-docs", new ApiDocsController());
@@ -50,6 +59,7 @@ public class HttpServerMain {
             System.out.println("  POST http://localhost:" + port + "/api/auth/register");
             System.out.println("  POST http://localhost:" + port + "/api/auth/login");
             System.out.println("  POST http://localhost:" + port + "/api/auth/reset-password");
+            System.out.println("  POST http://localhost:" + port + "/api/bookings");
 
         } catch (IOException e) {
             System.err.println("Failed to start server: " + e.getMessage());

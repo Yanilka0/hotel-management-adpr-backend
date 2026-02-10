@@ -32,6 +32,25 @@ public class JsonUtil {
                     return null;
                 }
             })
+            .registerTypeAdapter(java.time.LocalDate.class, new TypeAdapter<java.time.LocalDate>() {
+                @Override
+                public void write(JsonWriter out, java.time.LocalDate value) throws IOException {
+                    if (value != null) {
+                        out.value(value.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE));
+                    } else {
+                        out.nullValue();
+                    }
+                }
+
+                @Override
+                public java.time.LocalDate read(JsonReader in) throws IOException {
+                    String value = in.nextString();
+                    if (value != null && !value.isEmpty()) {
+                        return java.time.LocalDate.parse(value, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE);
+                    }
+                    return null;
+                }
+            })
             .create();
 
     public static String toJson(Object obj) {
