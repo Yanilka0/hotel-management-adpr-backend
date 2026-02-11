@@ -26,10 +26,24 @@ public class ReservationRepository {
                 .append("status", reservation.getStatus())
                 .append("createdAt", reservation.getCreatedAt().toString());
 
-        collection.insertOne(doc);
-        reservation.setId(doc.getObjectId("_id").toString());
+        if (reservation.getId() != null) {
+            collection.replaceOne(
+                    com.mongodb.client.model.Filters.eq("_id", new org.bson.types.ObjectId(reservation.getId())), doc);
+        } else {
+            collection.insertOne(doc);
+            reservation.setId(doc.getObjectId("_id").toString());
+        }
 
         return reservation;
+    }
+
+    public java.util.Optional<Reservation> findById(String id) {
+        Document doc = collection.find(com.mongodb.client.model.Filters.eq("_id", new org.bson.types.ObjectId(id)))
+                .first();
+        if (doc != null) {
+            return java.util.Optional.of(documentToReservation(doc));
+        }
+        return java.util.Optional.empty();
     }
 
     public java.util.List<Reservation> getAll() {

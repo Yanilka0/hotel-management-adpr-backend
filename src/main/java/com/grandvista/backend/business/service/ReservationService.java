@@ -77,6 +77,74 @@ public class ReservationService {
         return detailsList;
     }
 
+    public java.util.Optional<com.grandvista.backend.presentation.dto.ReservationDetailsResponse> getReservationWithDetails(
+            String id) {
+        Optional<Reservation> reservationOpt = reservationRepository.findById(id);
+        if (reservationOpt.isPresent()) {
+            Reservation res = reservationOpt.get();
+            com.grandvista.backend.presentation.dto.ReservationDetailsResponse details = new com.grandvista.backend.presentation.dto.ReservationDetailsResponse();
+            details.setId(res.getId());
+            details.setRoomType(res.getRoomType());
+            details.setStatus(res.getStatus());
+            details.setStayDuration(res.getCheckInDate().toString() + " to " + res.getCheckOutDate().toString());
+
+            // Populate new fields
+            details.setPeople(res.getNumberOfPeople());
+            details.setCheckInDate(res.getCheckInDate());
+            details.setCheckOutDate(res.getCheckOutDate());
+            details.setBedType(res.getBedType());
+            details.setBreakfastIncluded(res.isBreakfastIncluded());
+
+            Optional<Guest> guest = guestRepository.findById(res.getGuestId());
+            if (guest.isPresent()) {
+                Guest g = guest.get();
+                details.setClientName(g.getFullName());
+                details.setClientContact(g.getContactNumber());
+
+                // Populate guest fields
+                details.setAge(g.getAge());
+                details.setAddress(g.getAddress());
+                details.setIdentificationId(g.getIdentificationId());
+            } else {
+                details.setClientName("Unknown Client");
+                details.setClientContact("N/A");
+            }
+
+            return Optional.of(details);
+        }
+        return Optional.empty();
+    }
+
+    public Reservation updateReservation(String id, CreateBookingRequest request) {
+        Optional<Reservation> existingReservationOpt = reservationRepository.findById(id);
+        if (existingReservationOpt.isEmpty()) {
+            throw new RuntimeException("Reservation not found");
+        }
+        Reservation reservation = existingReservationOpt.get();
+
+        // 1. Update Guest
+        Optional<Guest> guestOpt = guestRepository.findById(reservation.getGuestId());
+        if (guestOpt.isPresent()) {
+            Guest guest = guestOpt.get();
+            guest.setFullName(request.getFullName());
+            guest.setAge(request.getAge());
+            guest.setContactNumber(request.getContactNumber());
+            guest.setAddress(request.getAddress());
+            guest.setIdentificationId(request.getIdentificationId());
+            guestRepository.save(guest);
+        }
+
+        // 2. Update Reservation
+        reservation.setRoomType(request.getRoomType());
+        reservation.setNumberOfPeople(request.getPeople());
+        reservation.setCheckInDate(request.getCheckInDate());
+        reservation.setCheckOutDate(request.getCheckOutDate());
+        reservation.setBedType(request.getBedType());
+        reservation.setBreakfastIncluded(request.isBreakfastIncluded());
+
+        return reservationRepository.save(reservation);
+    }
+
     public boolean deleteReservation(String id) {
         return reservationRepository.delete(id);
     }

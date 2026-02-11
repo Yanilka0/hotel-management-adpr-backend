@@ -48,6 +48,79 @@ public class ReservationDetailsResponse {
         this.stayDuration = stayDuration;
     }
 
+    private int age;
+    private String address;
+    private String identificationId;
+    private int people;
+    private java.time.LocalDate checkInDate;
+    private java.time.LocalDate checkOutDate;
+    private String bedType;
+    private boolean breakfastIncluded;
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getIdentificationId() {
+        return identificationId;
+    }
+
+    public void setIdentificationId(String identificationId) {
+        this.identificationId = identificationId;
+    }
+
+    public int getPeople() {
+        return people;
+    }
+
+    public void setPeople(int people) {
+        this.people = people;
+    }
+
+    public java.time.LocalDate getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(java.time.LocalDate checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    public java.time.LocalDate getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(java.time.LocalDate checkOutDate) {
+        this.checkOutDate = checkOutDate;
+    }
+
+    public String getBedType() {
+        return bedType;
+    }
+
+    public void setBedType(String bedType) {
+        this.bedType = bedType;
+    }
+
+    public boolean isBreakfastIncluded() {
+        return breakfastIncluded;
+    }
+
+    public void setBreakfastIncluded(boolean breakfastIncluded) {
+        this.breakfastIncluded = breakfastIncluded;
+    }
+
     public String getStatus() {
         return status;
     }

@@ -163,21 +163,88 @@
                 }
             },
             "get": {
-                "summary": "Get All Reservations",
-                "description": "Fetches all reservations with guest details",
+                "summary": "Get Reservations",
+                "description": "Fetches all reservations, or a single reservation if 'id' is provided",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "Optional ID to fetch a single reservation",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "List of reservations",
+                        "description": "List of reservations or single reservation details",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ReservationDetailsResponse"
-                                    }
+                                    "oneOf": [
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ReservationDetailsResponse"
+                                            }
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ReservationDetailsResponse"
+                                        }
+                                    ]
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Reservation not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update Booking",
+                "description": "Updates an existing booking",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "ID of the reservation to update",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateBookingRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Reservation"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Reservation not found"
                     },
                     "500": {
                         "description": "Internal server error"
@@ -402,6 +469,32 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "identificationId": {
+                        "type": "string"
+                    },
+                    "people": {
+                        "type": "integer"
+                    },
+                    "checkInDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "checkOutDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "bedType": {
+                        "type": "string"
+                    },
+                    "breakfastIncluded": {
+                        "type": "boolean"
                     }
                 }
             }

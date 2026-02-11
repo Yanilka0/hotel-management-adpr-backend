@@ -32,10 +32,18 @@ public class ReservationController implements HttpHandler {
         }
 
         String method = exchange.getRequestMethod();
+        String query = exchange.getRequestURI().getQuery();
+
         if ("POST".equals(method)) {
             handleCreateReservation(exchange);
         } else if ("GET".equals(method)) {
-            handleGetAllReservations(exchange);
+            if (query != null && query.contains("id=")) {
+                handleGetReservation(exchange);
+            } else {
+                handleGetAllReservations(exchange);
+            }
+        } else if ("PUT".equals(method)) {
+            handleUpdateReservation(exchange);
         } else if ("DELETE".equals(method)) {
             handleDeleteReservation(exchange);
         } else {
@@ -82,6 +90,71 @@ public class ReservationController implements HttpHandler {
             e.printStackTrace();
             sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
         }
+    }
+
+    private void handleGetReservation(HttpExchange exchange) throws IOException {
+        String id = getQueryParam(exchange, "id");
+        if (id == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing id parameter\"}");
+            return;
+        }
+
+        try {
+            java.util.Optional<com.grandvista.backend.presentation.dto.ReservationDetailsResponse> reservation = reservationService
+                    .getReservationWithDetails(id);
+            if (reservation.isPresent()) {
+                // We need to configure Gson or JsonUtil to handle LocalDate if not already
+                // done.
+                // Assuming JsonUtil works as expected or we might need to verify serialization
+                // of LocalDate.
+                String response = JsonUtil.toJson(reservation.get());
+                sendResponse(exchange, 200, response);
+            } else {
+                sendResponse(exchange, 404, "{\"error\": \"Reservation not found\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    private void handleUpdateReservation(HttpExchange exchange) throws IOException {
+        String id = getQueryParam(exchange, "id");
+        if (id == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing id parameter\"}");
+            return;
+        }
+
+        try {
+            String body = readRequestBody(exchange.getRequestBody());
+            CreateBookingRequest request = JsonUtil.fromJson(body, CreateBookingRequest.class);
+
+            if (request == null) {
+                sendResponse(exchange, 400, "{\"error\": \"Invalid request body\"}");
+                return;
+            }
+
+            Reservation reservation = reservationService.updateReservation(id, request);
+            String response = JsonUtil.toJson(reservation);
+            sendResponse(exchange, 200, response); // Using 200 OK for update
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(exchange, 500, "{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    private String getQueryParam(HttpExchange exchange, String paramName) {
+        String query = exchange.getRequestURI().getQuery();
+        if (query == null)
+            return null;
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=");
+            if (pair.length == 2 && paramName.equals(pair[0])) {
+                return pair[1];
+            }
+        }
+        return null;
     }
 
     private void handleCreateReservation(HttpExchange exchange) throws IOException {
