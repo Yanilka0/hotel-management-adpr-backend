@@ -36,8 +36,39 @@ public class ReservationController implements HttpHandler {
             handleCreateReservation(exchange);
         } else if ("GET".equals(method)) {
             handleGetAllReservations(exchange);
+        } else if ("DELETE".equals(method)) {
+            handleDeleteReservation(exchange);
         } else {
             sendResponse(exchange, 405, "{\"error\": \"Method not allowed\"}");
+        }
+    }
+
+    private void handleDeleteReservation(HttpExchange exchange) throws IOException {
+        String query = exchange.getRequestURI().getQuery();
+        if (query == null || !query.contains("id=")) {
+            sendResponse(exchange, 400, "{\"error\": \"Missing id parameter\"}");
+            return;
+        }
+
+        String id = null;
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=");
+            if (pair.length == 2 && "id".equals(pair[0])) {
+                id = pair[1];
+                break;
+            }
+        }
+
+        if (id == null) {
+            sendResponse(exchange, 400, "{\"error\": \"Invalid id parameter\"}");
+            return;
+        }
+
+        boolean success = reservationService.deleteReservation(id);
+        if (success) {
+            sendResponse(exchange, 204, "");
+        } else {
+            sendResponse(exchange, 404, "{\"error\": \"Reservation not found\"}");
         }
     }
 

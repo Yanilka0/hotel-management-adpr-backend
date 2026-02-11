@@ -76,4 +76,8 @@ public class ReservationService {
         }
         return detailsList;
     }
+
+    public boolean deleteReservation(String id) {
+        return reservationRepository.delete(id);
+    }
 }

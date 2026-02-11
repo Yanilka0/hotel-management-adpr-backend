@@ -183,6 +183,35 @@
                         "description": "Internal server error"
                     }
                 }
+            },
+            "delete": {
+                "summary": "Delete Reservation",
+                "description": "Deletes a reservation by ID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "ID of the reservation to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Reservation deleted successfully"
+                    },
+                    "400": {
+                        "description": "Missing or invalid ID"
+                    },
+                    "404": {
+                        "description": "Reservation not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
             }
         }
     },

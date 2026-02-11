@@ -68,4 +68,15 @@ public class ReservationRepository {
 
         return reservation;
     }
+
+    public boolean delete(String id) {
+        try {
+            com.mongodb.client.result.DeleteResult result = collection
+                    .deleteOne(com.mongodb.client.model.Filters.eq("_id", new org.bson.types.ObjectId(id)));
+            return result.getDeletedCount() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
